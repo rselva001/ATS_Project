@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Feedback Management</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f4f4f4; }
+    input, button { margin: 5px; padding: 8px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; background: white; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background-color: #2e7d32; color: white; }
+    h2 { color: #2e7d32; }
+    #resultBox { margin-top: 10px; padding: 10px; background: #fff; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+  <h1>Feedback Management</h1>
+
+  <h2>Create Feedback</h2>
+  <input type="text" id="comments" placeholder="Comments">
+  <input type="number" id="rating" placeholder="Rating (1-5)">
+  <input type="number" id="interviewId" placeholder="Interview ID">
+  <button onclick="createFeedback()">Create</button>
+
+  <h2>Get Feedback By ID</h2>
+  <input type="number" id="feedbackId" placeholder="Feedback ID">
+  <button onclick="getFeedbackById()">Get</button>
+
+  <h2>Get Feedback By Interview ID</h2>
+  <input type="number" id="interviewSearchId" placeholder="Interview ID">
+  <button onclick="getFeedbackByInterviewId()">Get</button>
+
+  <div id="resultBox"></div>
+
+  <h2>Update Feedback</h2>
+  <input type="number" id="updateId" placeholder="Feedback ID">
+  <input type="text" id="updateComments" placeholder="Comments">
+  <input type="number" id="updateRating" placeholder="Rating">
+  <input type="number" id="updateInterviewId" placeholder="Interview ID">
+  <button onclick="updateFeedback()">Update</button>
+
+  <h2>Delete Feedback</h2>
+  <input type="number" id="deleteId" placeholder="Feedback ID">
+  <button onclick="deleteFeedback()">Delete</button>
+
+  <h2>All Feedback</h2>
+  <button onclick="getAllFeedback()">Load All</button>
+  <table id="feedbackTable">
+    <thead>
+      <tr><th>ID</th><th>Comments</th><th>Rating</th><th>Interview ID</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const baseUrl = "http://localhost:8080/api/feedback";
+
+    async function createFeedback() {
+      const feedback = {
+        comments: document.getElementById("comments").value,
+        rating: parseInt(document.getElementById("rating").value),
+        interview: { id: parseInt(document.getElementById("interviewId").value) }
+      };
+      const res = await fetch(baseUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(feedback)
+      });
+      if (!res.ok) {
+        const err = await res.text();
+        alert("Error: " + err);
+        return;
+      }
+      alert("Feedback created!");
+    }
+
+    async function getFeedbackById() {
+      const id = document.getElementById("feedbackId").value;
+      const res = await fetch(`${baseUrl}/${id}`);
+      const box = document.getElementById("resultBox");
+      if (!res.ok) {
+        box.innerText = await res.text();
+        return;
+      }
+      const data = await res.json();
+      box.innerHTML = `<b>ID:</b> ${data.id}<br><b>Comments:</b> ${data.comments}<br><b>Rating:</b> ${data.rating}<br><b>Interview ID:</b> ${data.interview?.id}`;
+    }
+
+    async function getFeedbackByInterviewId() {
+      const interviewId = document.getElementById("interviewSearchId").value;
+      const res = await fetch(`${baseUrl}/interview/${interviewId}`);
+      const box = document.getElementById("resultBox");
+      if (!res.ok) {
+        box.innerText = await res.text();
+        return;
+      }
+      const data = await res.json();
+      box.innerHTML = `<b>ID:</b> ${data.id}<br><b>Comments:</b> ${data.comments}<br><b>Rating:</b> ${data.rating}<br><b>Interview ID:</b> ${data.interview?.id}`;
+    }
+
+    async function updateFeedback() {
+      const id = document.getElementById("updateId").value;
+      const feedback = {
+        comments: document.getElementById("updateComments").value,
+        rating: parseInt(document.getElementById("updateRating").value),
+        interview: { id: parseInt(document.getElementById("updateInterviewId").value) }
+      };
+      const res = await fetch(`${baseUrl}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(feedback)
+      });
+      const result = await res.text();
+      alert(res.ok ? "Feedback updated!" : "Update failed: " + result);
+    }
+
+    async function deleteFeedback() {
+      const id = document.getElementById("deleteId").value;
+      const res = await fetch(`${baseUrl}/${id}`, { method: "DELETE" });
+      const text = await res.text();
+      alert(text);
+    }
+
+    async function getAllFeedback() {
+      const res = await fetch(baseUrl);
+      const tbody = document.querySelector("#feedbackTable tbody");
+      tbody.innerHTML = "";
+      if (!res.ok) {
+        const text = await res.text();
+        alert("Failed to fetch: " + text);
+        return;
+      }
+      const feedbacks = await res.json();
+      feedbacks.forEach(f => {
+        tbody.innerHTML += `<tr>
+          <td>${f.id}</td>
+          <td>${f.comments}</td>
+          <td>${f.rating}</td>
+          <td>${f.interview?.id || "N/A"}</td>
+        </tr>`;
+      });
+    }
+  </script>
+</body>
+</html>
