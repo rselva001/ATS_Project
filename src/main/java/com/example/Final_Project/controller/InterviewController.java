@@ -1,8 +1,10 @@
 package com.example.Final_Project.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -73,9 +75,20 @@ public class InterviewController {
     }
 
     // ✅ Get interviews by Interviewer ID
-    @GetMapping("/interviewer/{interviewerId}")
+    @GetMapping("/interviewers/{interviewerId}")
     public ResponseEntity<List<Interview>> getInterviewsByInterviewerId(@PathVariable Long interviewerId) {
         List<Interview> interviews = interviewService.getInterviewsByInterviewerId(interviewerId);
         return ResponseEntity.ok(interviews);
     }
+
+    
+ // GET http://localhost:8080/api/interviews/upcoming
+    @GetMapping("/upcoming")
+    public ResponseEntity<List<Interview>> getUpcomingInterviews() {
+        return ResponseEntity.ok(interviewService.getUpcomingInterviews());
+    }
+
+
+    
+    
 }

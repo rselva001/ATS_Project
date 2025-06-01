@@ -27,7 +27,8 @@ public class Candidate {
     private String resumeUrl;
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL)
-    @JsonManagedReference(value = "candidate-application")  // on List<Application>
+//    @JsonManagedReference(value = "candidate-application")  // on List<Application>
+    @JsonBackReference
     private List<Application> applications;
 
 	public Candidate() {

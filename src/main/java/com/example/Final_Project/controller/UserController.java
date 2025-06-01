@@ -32,6 +32,7 @@ public class UserController {
     }
 
     // READ - Get all users
+    
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
@@ -73,5 +74,17 @@ public class UserController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+ 
+    
     }
+    
+    
+    
+    
 }
+
+
+
+
+
+

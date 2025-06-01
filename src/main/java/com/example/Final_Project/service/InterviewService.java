@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,8 @@ import com.example.Final_Project.entity.Interview;
 import com.example.Final_Project.repository.ApplicationRepository;
 import com.example.Final_Project.repository.InterviewRepository;
 import com.example.Final_Project.repository.UserRepository;
+import com.example.Final_Project.entity.Interview;
+import com.example.Final_Project.entity.Interview;
 
 @Service
 public class InterviewService {
@@ -26,8 +29,7 @@ public class InterviewService {
 
     // ✅ Create Interview
     public Interview createInterview(Interview interview) {
-    	interview.setScheduledTime(LocalDateTime.now());
-        return interviewRepository.save(interview);
+        return interviewRepository.save(interview); // Don't override scheduledTime
     }
 
     // ✅ Get all interviews
@@ -71,4 +73,26 @@ public class InterviewService {
     public List<Interview> getInterviewsByInterviewerId(Long interviewerId) {
         return interviewRepository.findByInterviewerId(interviewerId);
     }
+    
+   
+//
+//    public List<Interview> getUpcomingInterviews(LocalDateTime fromDate) {
+//        return interviewRepository.findByScheduledTimeAfterOrderByScheduledTimeAsc(fromDate);
+//    }
+//    
+    public List<Interview> getUpcomingInterviews() {
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println("Current Server Time: " + now);
+        return interviewRepository.findByScheduledTimeAfterNow(now);
+    }
+
+
+    
+    
+    
+    
+    
+    
+    
+    
 }

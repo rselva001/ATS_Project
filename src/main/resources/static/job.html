@@ -162,27 +162,29 @@
           </tr>`;
       });
     }
-      async function getJobsByStatus() {
-    	  const status = document.getElementById("statusInput").value.toUpperCase();
-    	  const res = await fetch(`${baseUrl}/status/${status}`);
 
-    	  if (!res.ok) {
-    	    const text = await res.text();
-    	    console.error("Error:", text);
-    	    alert("Failed to fetch jobs by status");
-    	    return;
-    	  }
-
-    	  const jobs = await res.json(); // <- this might not be an array!
-    	  console.log("Jobs by status:", jobs); // Add this for debugging
-
-    	  jobs.forEach(job => {
-    	    // Render logic
-    	  });
-    	}
-
+    async function getJobsByStatus() {
+      const status = document.getElementById("filterStatus").value.toUpperCase();
+      const res = await fetch(`${baseUrl}/status/${status}`);
+      const jobs = await res.json();
+      const tbody = document.getElementById("jobTable");
+      tbody.innerHTML = "";
+      jobs.forEach(job => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${job.id}</td>
+            <td>${job.title}</td>
+            <td>${job.description}</td>
+            <td>${job.department}</td>
+            <td>${job.location}</td>
+            <td>${job.status}</td>
+            <td>${job.postedAt}</td>
+          </tr>`;
+      });
       
-    
+      
+      
+    }
   </script>
 </body>
 </html>

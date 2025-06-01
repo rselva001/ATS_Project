@@ -77,4 +77,16 @@ public class JobService {
      */
     public List<Job> getJobsByStatus(JobStatus status) {
         return jobRepository.findByStatus(status);
-    }}
+    }
+    
+    public List<Job> getRecentJobs(int count) {
+        return jobRepository.findAll().stream()
+                .sorted((a, b) -> Long.compare(b.getId(), a.getId())) // Sort by ID descending
+                .limit(count)
+                .toList();
+    }
+
+
+
+
+}

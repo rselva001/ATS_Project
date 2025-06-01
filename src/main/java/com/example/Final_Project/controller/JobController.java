@@ -25,6 +25,7 @@ public class JobController {
 
     @Autowired
     private JobService jobService;
+
     @Autowired 
     public JobRepository jobRepository;
 
@@ -41,7 +42,21 @@ public class JobController {
         return ResponseEntity.ok(jobService.getAllJobs());
     }
 
-    // ✅ GET job by ID
+    // ✅ GET jobs by status
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<Job>> getJobsByStatus(@PathVariable JobStatus status) {
+        List<Job> jobs = jobService.getJobsByStatus(status);
+        return ResponseEntity.ok(jobs);
+    }
+
+    // ✅ GET recent jobs (must come before /{id})
+    @GetMapping("/recent")
+    public ResponseEntity<List<Job>> getRecentJobs() {
+        List<Job> jobs = jobService.getRecentJobs(5);
+        return ResponseEntity.ok(jobs);
+    }
+
+    // ✅ GET job by ID (generic, must come LAST)
     @GetMapping("/{id}")
     public ResponseEntity<Job> getJobById(@PathVariable Long id) {
         Optional<Job> jobOpt = jobService.getJobById(id);
@@ -67,11 +82,5 @@ public class JobController {
         } else {
             return ResponseEntity.ok("job id not found");
         }
-    }
-    // Get jobs by status (e.g., OPEN, CLOSED)
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Job>> getJobsByStatus(@PathVariable JobStatus status) {
-        List<Job> jobs = jobService.getJobsByStatus(status);
-        return ResponseEntity.ok(jobs);
     }
 }

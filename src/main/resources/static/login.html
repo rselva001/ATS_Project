@@ -1,0 +1,19 @@
+<input type="email" id="email">
+<input type="password" id="password">
+<button onclick="login()">Login</button>
+
+<script>
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const res = await fetch("http://localhost:8080/api/users", {
+    headers: {
+      "Authorization": "Basic " + btoa(email + ":" + password)
+    }
+  });
+
+  const text = await res.text();
+  alert("Server says: " + text);
+}
+</script>

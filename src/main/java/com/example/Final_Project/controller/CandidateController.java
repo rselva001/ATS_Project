@@ -5,14 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.Final_Project.entity.Candidate;
 import com.example.Final_Project.service.CandidateService;
@@ -36,7 +29,22 @@ public class CandidateController {
         return ResponseEntity.ok(candidateService.getAllCandidates());
     }
 
-    // ✅ Get candidate by ID
+//    // ✅ Get top N candidates (e.g., top 4)
+//    @GetMapping("/top")
+//    public ResponseEntity<List<Candidate>> getTopCandidates() {
+//        List<Candidate> candidates = candidateService.getTopCandidates(4);
+//        return ResponseEntity.ok(candidates);
+//    }
+
+    // ✅ Get candidate by email
+    @GetMapping("/email/{email}")
+    public ResponseEntity<?> getCandidateByEmail(@PathVariable String email) {
+        Optional<Candidate> candidate = candidateService.getCandidateByEmail(email);
+        return candidate.<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(404).body("Candidate not found with email: " + email));
+    }
+
+    // ✅ Get candidate by ID (keep at the bottom to avoid conflicts)
     @GetMapping("/{id}")
     public ResponseEntity<?> getCandidateById(@PathVariable Long id) {
         Optional<Candidate> candidate = candidateService.getCandidateById(id);
@@ -65,12 +73,11 @@ public class CandidateController {
             return ResponseEntity.status(404).body("Candidate not found with ID: " + id);
         }
     }
-
-    // ✅ Get candidate by email
-    @GetMapping("/email/{email}")
-    public ResponseEntity<?> getCandidateByEmail(@PathVariable String email) {
-        Optional<Candidate> candidate = candidateService.getCandidateByEmail(email);
-        return candidate.<ResponseEntity<?>>map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(404).body("Candidate not found with email: " + email));
+    
+    // Search by name: GET /api/candidates/search?name=John
+    @GetMapping("/search")
+    public ResponseEntity<List<Candidate>> searchCandidates(@RequestParam String name) {
+        List<Candidate> result = candidateService.searchCandidatesByName(name);
+        return ResponseEntity.ok(result);
     }
 }

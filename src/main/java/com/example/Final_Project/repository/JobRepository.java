@@ -10,5 +10,6 @@ import com.example.Final_Project.entity.JobStatus;
 public interface JobRepository extends JpaRepository<Job, Long>{
 
 	
+	
 	 List<Job> findByStatus(JobStatus status);
 }

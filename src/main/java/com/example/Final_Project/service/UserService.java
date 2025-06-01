@@ -4,6 +4,7 @@ package com.example.Final_Project.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.Final_Project.entity.User;
@@ -14,11 +15,18 @@ import com.example.Final_Project.repository.UserRepository;
 
 	    @Autowired
 	    private UserRepository userRepository;
+	    
+	    @Autowired
+	    private PasswordEncoder passwordEncoder;
 
 	    // CREATE
 	    public User createUser(User user) {
+	        user.setPassword(passwordEncoder.encode(user.getPassword()));
 	        return userRepository.save(user);
 	    }
+//	    public User createUser(User user) {
+//	        return userRepository.save(user);
+//	    }
 
 	    // READ - All users
 	    public List<User> getAllUsers() {
@@ -57,6 +65,10 @@ import com.example.Final_Project.repository.UserRepository;
 	        }
 	        userRepository.deleteById(id);
 	    }
+	    
+	    
+
+
 	}
 
 

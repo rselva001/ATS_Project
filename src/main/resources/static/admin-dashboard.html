@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ATS</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3>ATS Dashboard</h3>
+                <p>Admin Panel</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/admin-dashboard.html" class="active"><i class="bi bi-speedometer2 menu-icon"></i> Dashboard</a></li>
+                <li><a href="/users.html"><i class="bi bi-people menu-icon"></i> Users</a></li>
+                <li><a href="/jobs.html"><i class="bi bi-briefcase menu-icon"></i> Jobs</a></li>
+                <li><a href="/candidates.html"><i class="bi bi-person-vcard menu-icon"></i> Candidates</a></li>
+                <li><a href="/applications.html"><i class="bi bi-file-earmark-text menu-icon"></i> Applications</a></li>
+                <li><a href="/interviews.html"><i class="bi bi-calendar-check menu-icon"></i> Interviews</a></li>
+                <li><a href="/feedback.html"><i class="bi bi-chat-square-text menu-icon"></i> Feedback</a></li>
+                <li><a href="#" id="logout"><i class="bi bi-box-arrow-right menu-icon"></i> Logout</a></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h2>Admin Dashboard</h2>
+                <div class="user-profile">
+                    <img src="https://via.placeholder.com/40" alt="User">
+                    <span>Admin User</span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Users</h4>
+                            <span class="badge badge-primary">Total: <span id="totalUsers">0</span></span>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="usersChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Jobs</h4>
+                            <span class="badge badge-primary">Total: <span id="totalJobs">0</span></span>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="jobsChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Candidates</h4>
+                            <span class="badge badge-primary">Total: <span id="totalCandidates">0</span></span>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="candidatesChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4>Recent Activities</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Activity</th>
+                                <th>User</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activitiesTable">
+                            <!-- Activities will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/users.js"></script>
+    <script src="/js/jobs.js"></script>
+    <script src="/js/candidates.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load dashboard data
+            loadDashboardData();
+            
+            // Logout functionality
+            document.getElementById('logout').addEventListener('click', function(e) {
+                e.preventDefault();
+                // Implement logout logic in auth.js
+                logout();
+            });
+        });
+
+        function loadDashboardData() {
+            // Fetch and display counts
+            fetch('/api/users/count')
+                .then(response => response.json())
+                .then(data => document.getElementById('totalUsers').textContent = data.count);
+            
+            fetch('/api/jobs/count')
+                .then(response => response.json())
+                .then(data => document.getElementById('totalJobs').textContent = data.count);
+            
+            fetch('/api/candidates/count')
+                .then(response => response.json())
+                .then(data => document.getElementById('totalCandidates').textContent = data.count);
+            
+            // Load recent activities
+            fetch('/api/activities')
+                .then(response => response.json())
+                .then(activities => {
+                    const tableBody = document.getElementById('activitiesTable');
+                    tableBody.innerHTML = '';
+                    
+                    activities.forEach(activity => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${new Date(activity.date).toLocaleString()}</td>
+                            <td>${activity.type}</td>
+                            <td>${activity.user}</td>
+                            <td>${activity.details}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                });
+            
+            // Initialize charts
+            initializeCharts();
+        }
+
+        function initializeCharts() {
+            // Users by role chart
+            const usersCtx = document.getElementById('usersChart').getContext('2d');
+            new Chart(usersCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Admin', 'Recruiter', 'Hiring Manager', 'Interviewer'],
+                    datasets: [{
+                        data: [5, 10, 8, 15],
+                        backgroundColor: [
+                            '#3498db',
+                            '#2ecc71',
+                            '#f39c12',
+                            '#9b59b6'
+                        ]
+                    }]
+                }
+            });
+
+            // Jobs by status chart
+            const jobsCtx = document.getElementById('jobsChart').getContext('2d');
+            new Chart(jobsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Open', 'Closed', 'Filled'],
+                    datasets: [{
+                        label: 'Jobs',
+                        data: [12, 8, 5],
+                        backgroundColor: [
+                            '#3498db',
+                            '#e74c3c',
+                            '#2ecc71'
+                        ]
+                    }]
+                }
+            });
+
+            // Candidates by status chart
+            const candidatesCtx = document.getElementById('candidatesChart').getContext('2d');
+            new Chart(candidatesCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['New', 'Interviewed', 'Offered', 'Hired'],
+                    datasets: [{
+                        data: [25, 15, 5, 3],
+                        backgroundColor: [
+                            '#3498db',
+                            '#f39c12',
+                            '#9b59b6',
+                            '#2ecc71'
+                        ]
+                    }]
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -2,6 +2,7 @@ package com.example.Final_Project.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,4 +58,23 @@ public class CandidateService {
     public Optional<Candidate> getCandidateByEmail(String email) {
         return candidateRepository.findByEmail(email);
     }
+    
+    // Search candidates by name
+    public List<Candidate> searchCandidatesByName(String name) {
+        return candidateRepository.findByNameContainingIgnoreCase(name);
+    }
+    
+//    
+//    public List<Candidate> getTopCandidates(int count) {
+//        // Fetch all candidates
+//        List<Candidate> allCandidates = candidateRepository.findAll();
+//
+//        // Sort by ID in descending order and return the top 'count' candidates
+//        return allCandidates.stream()
+//                .sorted((c1, c2) -> Long.compare(c2.getId(), c1.getId()))
+//                .limit(count)
+//                .collect(Collectors.toList());
+//    }
+
+
 }
